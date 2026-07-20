@@ -7,6 +7,7 @@ from nltk.corpus import stopwords
 from nltk.stem.porter import PorterStemmer
 
 nltk.download('punkt', quiet=True)
+nltk.download('punkt_tab', quiet=True)
 nltk.download('stopwords', quiet=True)
 
 ps = PorterStemmer()
@@ -36,24 +37,32 @@ def transform_text(text):
 
     return " ".join(y)
 
-tfidf = pickle.load(open("vectorizer.pkl","rb"))
-model = pickle.load(open("model.pkl","rb"))
+tfidf = pickle.load(open("vectorizer.pkl", "rb"))
+model = pickle.load(open("model.pkl", "rb"))
 
-st.set_page_config(page_title="SMS Spam Detection", page_icon="📩")
+st.set_page_config(
+    page_title="SMS Spam Detection",
+    page_icon="📩",
+    layout="centered"
+)
 
 st.title("📩 SMS Spam Detection")
+st.write("Enter an SMS below to check whether it is Spam or Ham.")
 
 sms = st.text_area("Enter your SMS")
 
 if st.button("Predict"):
 
-    transformed_sms = transform_text(sms)
-
-    vector = tfidf.transform([transformed_sms])
-
-    prediction = model.predict(vector)[0]
-
-    if prediction == 1:
-        st.error("🚨 Spam Message")
+    if sms.strip() == "":
+        st.warning("⚠️ Please enter an SMS message.")
     else:
-        st.success("✅ Not Spam")
+        transformed_sms = transform_text(sms)
+
+        vector = tfidf.transform([transformed_sms])
+
+        prediction = model.predict(vector)[0]
+
+        if prediction == 1:
+            st.error("🚨 Spam Message")
+        else:
+            st.success("✅ Not Spam (Ham)")
